@@ -30,3 +30,9 @@ height = 10
 x_start = 64
 y_start = 800
 offset = 64
+
+[node name="destory_timer" type="Timer" parent="."]
+wait_time = 0.5
+one_shot = true
+
+[connection signal="timeout" from="destory_timer" to="grid" method="_on_destory_timer_timeout"]
