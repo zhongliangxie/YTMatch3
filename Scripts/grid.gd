@@ -17,6 +17,7 @@ export (PoolVector2Array) var empty_spaces
 export (PoolVector2Array) var ice_spaces
 export (PoolVector2Array) var lock_spaces
 export (PoolVector2Array) var concrete_spaces
+export (PoolVector2Array) var slime_spaces
 
 # Obstacle Signals
 signal make_ice
@@ -25,6 +26,8 @@ signal make_lock
 signal damage_lock
 signal make_concrete
 signal damage_concrete
+signal make_slime
+signal damage_slime
 
 # The piece array
 var possible_pieces = [
@@ -59,6 +62,7 @@ func _ready():
 	spawn_ice()
 	spawn_locks()
 	spawn_concrete()
+	spawn_slime()
 
 func restricted_fill(place):
 	# Check the empty pieces
@@ -73,6 +77,8 @@ func restricted_move(place):
 	if is_in_array(lock_spaces, place):
 		return true
 	if is_in_array(concrete_spaces, place):
+		return true
+	if is_in_array(slime_spaces, place):
 		return true
 	return false
 
@@ -125,6 +131,10 @@ func spawn_locks():
 func spawn_concrete():
 	for i in concrete_spaces.size():
 		emit_signal("make_concrete", concrete_spaces[i])
+
+func spawn_slime():
+	for i in slime_spaces.size():
+		emit_signal("make_slime", slime_spaces[i])
 
 func match_at(i, j, color):
 	if i > 1:
@@ -266,10 +276,24 @@ func check_concrete(column, row):
 	if row > 0:
 		emit_signal("damage_concrete", Vector2(column, row - 1))
 
+func check_slime(column, row):
+	# Check Right
+	if column < width - 1:
+		emit_signal("damage_slime", Vector2(column + 1, row))
+	# Check Left
+	if column > 0:
+		emit_signal("damage_slime", Vector2(column - 1, row))
+	# Check up
+	if row < height - 1:
+		emit_signal("damage_slime", Vector2(column, row + 1))
+	if row > 0:
+		emit_signal("damage_slime", Vector2(column, row - 1))
+
 func damage_special(column, row):
 	emit_signal("damage_ice", Vector2(column, row))
 	emit_signal("damage_lock", Vector2(column, row))
 	check_concrete(column, row)
+	check_slime(column, row)
 
 func collapse_columns():
 	for i in width:
@@ -325,7 +349,16 @@ func _on_refill_timer_timeout():
 	refill_columns()
 
 func _on_lock_holder_remove_lock(place):
-	remove_from_array(lock_spaces, place)
+	for i in range(lock_spaces.size() - 1, -1, -1):
+		if lock_spaces[i] == place:
+			lock_spaces.remove(i)
 
 func _on_concrete_holder_remove_concrete(place):
-	remove_from_array(concrete_spaces, place)
+	for i in range(concrete_spaces.size() - 1, -1, -1):
+		if concrete_spaces[i] == place:
+			concrete_spaces.remove(i)
+
+func _on_slime_holder_remove_slime(place):
+	for i in range(slime_spaces.size() - 1, -1, -1):
+		if slime_spaces[i] == place:
+			slime_spaces.remove(i)
