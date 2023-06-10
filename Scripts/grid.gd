@@ -12,6 +12,9 @@ export (int) var y_start;
 export (int) var offset;
 export (int) var y_offset;
 
+# Obstacle Stuff
+export (PoolVector2Array) var empty_spaces
+
 # The piece array
 var possible_pieces = [
 preload("res://Scenes/yellow_piece.tscn"),
@@ -43,6 +46,13 @@ func _ready():
 	all_pieces = make_2d_array();
 	spawn_pieces();
 
+func restricted_movement(place):
+	# Check the empty pieces
+	for i in empty_spaces.size():
+		if empty_spaces[i] == place:
+			return true
+	return false
+
 func make_2d_array():
 	var array = [];
 	for i in width:
@@ -54,20 +64,21 @@ func make_2d_array():
 func spawn_pieces():
 	for i in width:
 		for j in height:
-			#choose a random number and store it
-			var rand = floor(rand_range(0, possible_pieces.size()));
-			var piece = possible_pieces[rand].instance();
-			var loops = 0;
-			while(match_at(i, j, piece.color) && loops < 100):
-				rand = floor(rand_range(0, possible_pieces.size()));
-				loops += 1;
-				piece = possible_pieces[rand].instance();
-					
-			# Instance that piece from the array
+			if !restricted_movement(Vector2(i, j)):
+				#choose a random number and store it
+				var rand = floor(rand_range(0, possible_pieces.size()));
+				var piece = possible_pieces[rand].instance();
+				var loops = 0;
+				while(match_at(i, j, piece.color) && loops < 100):
+					rand = floor(rand_range(0, possible_pieces.size()));
+					loops += 1;
+					piece = possible_pieces[rand].instance();
+						
+				# Instance that piece from the array
 
-			add_child(piece);
-			piece.position = grid_to_pixel(i, j);
-			all_pieces[i][j] = piece;
+				add_child(piece);
+				piece.position = grid_to_pixel(i, j);
+				all_pieces[i][j] = piece;
 
 func match_at(i, j, color):
 	if i > 1:
@@ -130,9 +141,8 @@ func swap_back():
 	# Move the previously swapped pieces back to the previous place.
 	if piece_one != null && piece_two != null:
 		swap_pieces(last_place.x, last_place.y, last_direction)
-	
 	state = move
-	pass
+	move_checked = false
 
 func touch_difference(grid_1, grid_2):
 	var difference = grid_2 - grid_1;
@@ -181,8 +191,8 @@ func destroy_matched():
 	for i in width:
 		for j in height:
 			if all_pieces[i][j] != null:
-				was_matched = true
 				if all_pieces[i][j].matched:
+					was_matched = true
 					all_pieces[i][j].queue_free();
 					all_pieces[i][j] = null;
 	move_checked = true
@@ -194,7 +204,7 @@ func destroy_matched():
 func collapse_columns():
 	for i in width:
 		for j in height:
-			if all_pieces[i][j] == null:
+			if all_pieces[i][j] == null && !restricted_movement(Vector2(i, j)):
 				for k in range(j + 1, height):
 					if all_pieces[i][k] != null:
 						all_pieces[i][k].move(grid_to_pixel(i, j))
@@ -206,7 +216,7 @@ func collapse_columns():
 func refill_columns():
 	for i in width:
 		for j in height:
-			if all_pieces[i][j] == null:
+			if all_pieces[i][j] == null && !restricted_movement(Vector2(i, j)):
 				#choose a random number and store it
 				var rand = floor(rand_range(0, possible_pieces.size()));
 				var piece = possible_pieces[rand].instance();
