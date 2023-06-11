@@ -1,0 +1,33 @@
+[gd_scene format=2]
+
+[node name="BaseMenuPanel" type="CanvasLayer"]
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+
+[node name="Graphic and  Buttons" type="VBoxContainer" parent="MarginContainer"]
+margin_right = 536.0
+margin_bottom = 984.0
+custom_constants/separation = 30
+
+[node name="Graphic" type="TextureRect" parent="MarginContainer/Graphic and  Buttons"]
+margin_right = 536.0
+
+[node name="Buttons" type="VBoxContainer" parent="MarginContainer/Graphic and  Buttons"]
+margin_top = 30.0
+margin_right = 536.0
+margin_bottom = 50.0
+custom_constants/separation = 20
+
+[node name="Button 1" type="TextureButton" parent="MarginContainer/Graphic and  Buttons/Buttons"]
+margin_right = 536.0
+
+[node name="Button 2" type="TextureButton" parent="MarginContainer/Graphic and  Buttons/Buttons"]
+margin_top = 20.0
+margin_right = 536.0
+margin_bottom = 20.0
