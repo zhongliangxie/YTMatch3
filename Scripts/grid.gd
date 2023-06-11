@@ -61,6 +61,12 @@ signal update_score
 export (int) var piece_value
 var streak = 1
 
+# was a color bobm used?
+var color_bomb_used = false
+
+# Effects
+var particle_effect = preload("res://Scenes/ParticleEffect.tscn")
+
 func _ready():
 	state = move
 	randomize();
@@ -361,6 +367,7 @@ func destroy_matched():
 					was_matched = true
 					all_pieces[i][j].queue_free();
 					all_pieces[i][j] = null;
+					make_effect(particle_effect, i, j)
 					emit_signal("update_score", piece_value * streak)
 	move_checked = true
 	if was_matched:
@@ -368,6 +375,11 @@ func destroy_matched():
 	else:
 		swap_back()
 	current_matches.clear()
+
+func make_effect(effect, column, row):
+	var current = effect.instance()
+	current.position = grid_to_pixel(column, row)
+	add_child(current)
 
 func check_concrete(column, row):
 	# Check Right
