@@ -299,7 +299,7 @@ func find_bombs():
 		# 0 is an adj bomb, 1, is a row bomb, and 2 is a column bomb
 		# 3 is a color bomb
 		if col_matched == 5 or row_matched == 5:
-			print("color bomb")
+			make_bomb(3, current_color)
 			return
 		elif col_matched >= 3 and row_matched >= 3:
 			make_bomb(0, current_color)
@@ -333,6 +333,8 @@ func change_bomb(bomb_type, piece):
 		piece.make_row_bomb()
 	elif bomb_type == 2:
 		piece.make_column_bomb()
+	elif bomb_type == 3:
+		piece.make_color_bomb()
 
 func destroy_matched():
 	find_bombs()
