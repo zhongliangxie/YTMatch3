@@ -70,6 +70,12 @@ signal game_over
 # was a color bobm used?
 var color_bomb_used = false
 
+# Collectible/Sinker Stuff
+export (PackedScene) var sinker_piece
+export (bool) var sinkers_in_scene
+export (int) var max_sinkers
+var current_sinkers = 0
+
 # Effects
 var particle_effect = preload("res://Scenes/ParticleEffect.tscn")
 var animated_effect = preload("res://Scenes/Animated Explosion.tscn")
@@ -77,7 +83,9 @@ var animated_effect = preload("res://Scenes/Animated Explosion.tscn")
 func _ready():
 	state = move
 	randomize();
-	all_pieces = make_2d_array();
+	all_pieces = make_2d_array()
+	if sinkers_in_scene:
+		spawn_sinker(max_sinkers)
 	spawn_pieces();
 	spawn_ice()
 	spawn_locks()
@@ -129,7 +137,7 @@ func make_2d_array():
 func spawn_pieces():
 	for i in width:
 		for j in height:
-			if !restricted_fill(Vector2(i, j)):
+			if !restricted_fill(Vector2(i, j)) and all_pieces[i][j] == null:
 				#choose a random number and store it
 				var rand = floor(rand_range(0, possible_pieces.size()));
 				var piece = possible_pieces[rand].instance();
@@ -144,6 +152,12 @@ func spawn_pieces():
 				add_child(piece);
 				piece.position = grid_to_pixel(i, j);
 				all_pieces[i][j] = piece;
+
+func is_piece_sinker(column, row):
+	if all_pieces[column][row] != null:
+		if all_pieces[column][row].color == "None":
+			return true
+	return false
 
 func spawn_ice():
 	for i in ice_spaces.size():
@@ -160,6 +174,17 @@ func spawn_concrete():
 func spawn_slime():
 	for i in slime_spaces.size():
 		emit_signal("make_slime", slime_spaces[i])
+
+func spawn_sinker(number_to_spawn):
+	for i in number_to_spawn:
+		var column = floor(rand_range(0, width))
+		while all_pieces[column][height -1] != null or restricted_fill(Vector2(column, height - 1)):
+			column = floor(rand_range(0, width))
+		var current = sinker_piece.instance()
+		add_child(current)
+		current.position = grid_to_pixel(column, height - 1)
+		all_pieces[column][height - 1] = current
+		current_sinkers += 1
 
 func match_at(i, j, color):
 	if i > 1:
@@ -260,7 +285,7 @@ func _process(delta):
 func find_matches():
 	for i in width:
 		for j in height:
-			if all_pieces[i][j] != null:
+			if all_pieces[i][j] != null and !is_piece_sinker(i, j):
 				var current_color = all_pieces[i][j].color;
 				if i > 0 && i < width - 1:
 					if !is_piece_null(i - 1, j) && all_pieces[i + 1][j] != null:
@@ -427,7 +452,7 @@ func damage_special(column, row):
 func match_color(color):
 	for i in width:
 		for j in height:
-			if all_pieces[i][j] != null:
+			if all_pieces[i][j] != null and !is_piece_sinker(i, j):
 				if all_pieces[i][j].color == color:
 					match_and_dim(all_pieces[i][j])
 					add_to_array(Vector2(i,j))
@@ -435,7 +460,7 @@ func match_color(color):
 func clear_board():
 	for i in width:
 		for j in height:
-			if all_pieces[i][j] != null:
+			if all_pieces[i][j] != null and !is_piece_sinker(i, j):
 				match_and_dim(all_pieces[i][j])
 				add_to_array(Vector2(i,j))
 
@@ -449,6 +474,7 @@ func collapse_columns():
 						all_pieces[i][j] = all_pieces[i][k]
 						all_pieces[i][k] = null
 						break
+	destroy_sinkers()
 	get_parent().get_node("refill_timer").start()
 
 func refill_columns():
@@ -474,10 +500,13 @@ func refill_columns():
 	after_refill()
 
 func after_refill():
+	if current_sinkers < max_sinkers:
+		spawn_sinker(max_sinkers - current_sinkers)
+	streak += 1
 	for i in width:
 		for j in height:
 			if all_pieces[i][j] != null:
-				if match_at(i, j, all_pieces[i][j].color):
+				if match_at(i, j, all_pieces[i][j].color) or all_pieces[i][j].matched:
 					find_matches()
 					get_parent().get_node("destory_timer").start()
 					return
@@ -520,25 +549,25 @@ func generate_slime():
 func find_normal_neighbor(column, row):
 	# Check Right first
 	if is_in_grid(Vector2(column + 1, row)):
-		if all_pieces[column + 1][row] != null:
+		if all_pieces[column + 1][row] != null and !is_piece_sinker(column + 1, row):
 			return Vector2(column + 1, row)
 	# Check Left
 	if is_in_grid(Vector2(column - 1, row)):
-		if all_pieces[column - 1][row] != null:
+		if all_pieces[column - 1][row] != null and !is_piece_sinker(column - 1, row):
 			return Vector2(column - 1, row)
 	# Check up
-	if is_in_grid(Vector2(column, row + 1)):
+	if is_in_grid(Vector2(column, row + 1)) and !is_piece_sinker(column, row + 1):
 		if all_pieces[column][row + 1] != null:
 			return Vector2(column, row + 1)
 	# Check Down
-	if is_in_grid(Vector2(column, row - 1)):
+	if is_in_grid(Vector2(column, row - 1)) and !is_piece_sinker(column, row - 1):
 		if all_pieces[column][row - 1] != null:
 			return Vector2(column, row - 1)
 	return null
 
 func match_all_in_column(column):
 	for i in height:
-		if all_pieces[column][i] != null:
+		if all_pieces[column][i] != null and !is_piece_sinker(column, i):
 			if all_pieces[column][i].is_row_bomb:
 				match_all_in_row(i)
 			if all_pieces[column][i].is_adjacent_bomb:
@@ -547,7 +576,7 @@ func match_all_in_column(column):
 
 func match_all_in_row(row):
 	for i in width:
-		if all_pieces[i][row] != null:
+		if all_pieces[i][row] != null and !is_piece_sinker(i, row):
 			if all_pieces[i][row].is_column_bomb:
 				match_all_in_column(i)
 			if all_pieces[i][row].is_adjacent_bomb:
@@ -558,12 +587,19 @@ func find_adjacent_pieces(column, row):
 	for i in range(-1, 2):
 		for j in range(-1, 2):
 			if is_in_grid(Vector2(column + i, row + j)):
-				if all_pieces[column + i][row + j] != null:
+				if all_pieces[column + i][row + j] != null and !is_piece_sinker(column + i, row + j):
 					if all_pieces[column][i].is_row_bomb:
 						match_all_in_row(i)
 					if all_pieces[i][row].is_column_bomb:
 						match_all_in_column(i)
 					all_pieces[column +i][row + j].matched = true
+
+func destroy_sinkers():
+	for i in width:
+		if all_pieces[i][0] != null:
+			if all_pieces[i][0].color == "None":
+				all_pieces[i][0].matched = true
+				current_sinkers -= 1
 
 func _on_destory_timer_timeout():
 	destroy_matched();
@@ -589,7 +625,6 @@ func _on_slime_holder_remove_slime(place):
 	for i in range(slime_spaces.size() - 1, -1, -1):
 		if slime_spaces[i] == place:
 			slime_spaces.remove(i)
-
 
 func _on_Timer_timeout():
 	current_counter_value -= 1
