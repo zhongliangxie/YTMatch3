@@ -65,6 +65,7 @@ var streak = 1
 signal update_counter
 export(int) var current_counter_value
 export(bool) var is_moves
+signal game_over
 
 # was a color bobm used?
 var color_bomb_used = false
@@ -598,5 +599,5 @@ func _on_Timer_timeout():
 		$Timer.stop()
 
 func declare_game_over():
-	print("Game Over")
+	emit_signal("game_over")
 	state = wait
