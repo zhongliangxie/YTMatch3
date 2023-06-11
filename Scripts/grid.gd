@@ -36,8 +36,8 @@ preload("res://Scenes/yellow_piece.tscn"),
 preload("res://Scenes/blue_piece.tscn"),
 preload("res://Scenes/pink_piece.tscn"),
 preload("res://Scenes/orange_piece.tscn"),
-preload("res://Scenes/green_piece.tscn"),
-preload("res://Scenes/light_piece.tscn")	
+#preload("res://Scenes/green_piece.tscn"),
+#preload("res://Scenes/light_piece.tscn")	
 ];
 
 # The current pieces in the scene
@@ -296,13 +296,13 @@ func find_bombs():
 		if col_matched == 5 or row_matched == 5:
 			print("color bomb")
 			return
-		if col_matched >= 3 and row_matched >= 3:
+		elif col_matched >= 3 and row_matched >= 3:
 			make_bomb(0, current_color)
 			return
-		if col_matched == 4:
+		elif col_matched == 4:
 			make_bomb(1, current_color)
 			return
-		if row_matched == 4:
+		elif row_matched == 4:
 			make_bomb(2, current_color)
 			return
 
@@ -312,7 +312,7 @@ func make_bomb(bomb_type, color):
 		# Cache a few variables
 		var current_column = current_matches[i].x
 		var current_row = current_matches[i].y
-		if all_pieces[current_column][current_row] == piece_one and piece_two.color == color:
+		if all_pieces[current_column][current_row] == piece_one and piece_one.color == color:
 			#Make piece_one a bomb
 			piece_one.matched = false
 			change_bomb(bomb_type, piece_one)
