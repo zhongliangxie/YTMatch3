@@ -32,6 +32,7 @@ x_start = 64
 y_start = 800
 offset = 64
 y_offset = 2
+piece_value = 10
 
 [node name="ice_holder" type="Node2D" parent="."]
 script = ExtResource( 5 )
@@ -65,6 +66,7 @@ one_shot = true
 [connection signal="make_ice" from="grid" to="ice_holder" method="_on_grid_make_ice"]
 [connection signal="make_lock" from="grid" to="lock_holder" method="_on_grid_make_lock"]
 [connection signal="make_slime" from="grid" to="slime_holder" method="_on_grid_make_slime"]
+[connection signal="update_score" from="grid" to="top_ui" method="_on_grid_update_score"]
 [connection signal="remove_lock" from="lock_holder" to="grid" method="_on_lock_holder_remove_lock"]
 [connection signal="remove_concrete" from="concrete_holder" to="grid" method="_on_concrete_holder_remove_concrete"]
 [connection signal="remove_slime" from="slime_holder" to="grid" method="_on_slime_holder_remove_slime"]
