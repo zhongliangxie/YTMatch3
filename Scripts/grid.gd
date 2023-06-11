@@ -257,6 +257,8 @@ func get_bombed_pieces():
 						match_all_in_column(i)
 					elif all_pieces[i][j].is_row_bomb:
 						match_all_in_row(j)
+					elif all_pieces[i][j].is_adjacent_bomb:
+						find_adjacent_pieces(i, j)
 
 func add_to_array(value, array_to_add = current_matches):
 	if !array_to_add.has(value):
@@ -470,12 +472,31 @@ func find_normal_neighbor(column, row):
 func match_all_in_column(column):
 	for i in height:
 		if all_pieces[column][i] != null:
+			if all_pieces[column][i].is_row_bomb:
+				match_all_in_row(i)
+			if all_pieces[column][i].is_adjacent_bomb:
+				find_adjacent_pieces(column, i)
 			all_pieces[column][i].matched = true
 
 func match_all_in_row(row):
 	for i in width:
 		if all_pieces[i][row] != null:
+			if all_pieces[i][row].is_column_bomb:
+				match_all_in_column(i)
+			if all_pieces[i][row].is_adjacent_bomb:
+				find_adjacent_pieces(i, row)
 			all_pieces[i][row].matched = true
+
+func find_adjacent_pieces(column, row):
+	for i in range(-1, 2):
+		for j in range(-1, 2):
+			if is_in_grid(Vector2(column + i, row + j)):
+				if all_pieces[column + i][row + j] != null:
+					if all_pieces[column][i].is_row_bomb:
+						match_all_in_row(i)
+					if all_pieces[i][row].is_column_bomb:
+						match_all_in_column(i)
+					all_pieces[column +i][row + j].matched = true
 
 func _on_destory_timer_timeout():
 	destroy_matched();
