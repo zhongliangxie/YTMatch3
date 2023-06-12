@@ -6,6 +6,8 @@
 [ext_resource path="res://Animation/slide_in.tres" type="Animation" id=4]
 
 [node name="Game Win Screen" type="CanvasLayer"]
+offset = Vector2( 576, 0 )
+transform = Transform2D( 1, 0, 0, 1, 576, 0 )
 script = ExtResource( 3 )
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
