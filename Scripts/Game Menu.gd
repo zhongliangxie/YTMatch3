@@ -14,4 +14,4 @@ func _on_Settings_back_button():
 	$Main.slide_in()
 
 func _on_Main_play_pressed():
-	get_tree().change_scene("res://Scenes/levels/level_1.tscn")
+	get_tree().change_scene("res://Scenes/LevelSelectScene.tscn")
