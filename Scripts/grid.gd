@@ -94,6 +94,9 @@ var current_sinkers = 0
 var particle_effect = preload("res://Scenes/ParticleEffect.tscn")
 var animated_effect = preload("res://Scenes/Animated Explosion.tscn")
 
+#Sounds
+signal play_sound
+
 func _ready():
 	state = move
 	randomize();
@@ -461,6 +464,7 @@ func destroy_matched():
 					all_pieces[i][j] = null;
 					make_effect(particle_effect, i, j)
 					make_effect(animated_effect, i, j)
+					emit_signal("play_sound")
 					emit_signal("update_score", piece_value * streak)
 	move_checked = true
 	if was_matched:
@@ -764,7 +768,6 @@ func find_all_matches():
 						if match_color == clone_array[i][j].color:
 							hint_holder.append(clone_array[i][j])
 						else:
-							print("x:",i," y:",j, " color:" , match_color)
 							hint_holder.append(clone_array[i][j + 1])
 	return hint_holder
 
