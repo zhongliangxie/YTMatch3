@@ -12,8 +12,8 @@
 [ext_resource path="res://Scenes/Sinker.tscn" type="PackedScene" id=10]
 [ext_resource path="res://Scripts/GoalHolder.gd" type="Script" id=11]
 [ext_resource path="res://Scenes/GoalPrefab.tscn" type="PackedScene" id=12]
-[ext_resource path="res://art/Pieces/Blue Piece.png" type="Texture" id=13]
-[ext_resource path="res://art/Pieces/Pink Piece.png" type="Texture" id=14]
+[ext_resource path="res://art/Obstacles/Ice.png" type="Texture" id=13]
+[ext_resource path="res://Scenes/Game Win Screen.tscn" type="PackedScene" id=14]
 [ext_resource path="res://Scenes/Goal.tscn" type="PackedScene" id=15]
 
 [node name="game_window" type="Node2D"]
@@ -40,17 +40,19 @@ x_start = 64
 y_start = 800
 offset = 64
 y_offset = 2
+empty_spaces = PoolVector2Array( 3, 8, 4, 8, 3, 9, 4, 9 )
+ice_spaces = PoolVector2Array( 0, 0, 1, 0, 6, 0, 7, 0, 0, 1, 7, 1, 2, 3, 3, 3, 4, 3, 5, 3, 2, 4, 3, 4, 4, 4, 5, 4, 0, 7, 1, 7, 6, 7, 7, 7, 0, 8, 1, 8, 6, 8, 7, 8 )
 max_score = 5000
 piece_value = 10
-current_counter_value = 60
+current_counter_value = 30
+is_moves = true
 sinker_piece = ExtResource( 10 )
-sinkers_in_scene = true
-max_sinkers = 2
 
 [node name="Timer" type="Timer" parent="grid"]
 
 [node name="ice_holder" type="Node2D" parent="."]
 script = ExtResource( 5 )
+value = "ice"
 
 [node name="lock_holder" type="Node2D" parent="."]
 script = ExtResource( 6 )
@@ -80,13 +82,12 @@ script = ExtResource( 11 )
 
 [node name="Goal" parent="GoalHolder" instance=ExtResource( 15 )]
 goal_texture = ExtResource( 13 )
-max_needed = 5
-goal_string = "blue"
+max_needed = 22
+goal_string = "ice"
 
-[node name="Goal2" parent="GoalHolder" instance=ExtResource( 15 )]
-goal_texture = ExtResource( 14 )
-max_needed = 3
-goal_string = "pink"
+[node name="Game Win Screen" parent="." instance=ExtResource( 14 )]
+offset = Vector2( 576, 0 )
+transform = Transform2D( 1, 0, 0, 1, 576, 0 )
 
 [connection signal="check_goal" from="grid" to="top_ui" method="_on_grid_check_goal"]
 [connection signal="check_goal" from="grid" to="GoalHolder" method="_on_grid_check_goal"]
@@ -103,6 +104,8 @@ goal_string = "pink"
 [connection signal="update_counter" from="grid" to="top_ui" method="_on_grid_update_counter"]
 [connection signal="update_score" from="grid" to="top_ui" method="_on_grid_update_score"]
 [connection signal="timeout" from="grid/Timer" to="grid" method="_on_Timer_timeout"]
+[connection signal="break_ice" from="ice_holder" to="top_ui" method="_on_ice_holder_break_ice"]
+[connection signal="break_ice" from="ice_holder" to="GoalHolder" method="_on_ice_holder_break_ice"]
 [connection signal="remove_lock" from="lock_holder" to="grid" method="_on_lock_holder_remove_lock"]
 [connection signal="remove_concrete" from="concrete_holder" to="grid" method="_on_concrete_holder_remove_concrete"]
 [connection signal="remove_slime" from="slime_holder" to="grid" method="_on_slime_holder_remove_slime"]
@@ -110,3 +113,5 @@ goal_string = "pink"
 [connection signal="timeout" from="collapse_timer" to="grid" method="_on_collapse_timer_timeout"]
 [connection signal="timeout" from="refill_timer" to="grid" method="_on_refill_timer_timeout"]
 [connection signal="create_goal" from="GoalHolder" to="top_ui" method="_on_GoalHolder_create_goal"]
+[connection signal="game_won" from="GoalHolder" to="grid" method="_on_GoalHolder_game_won"]
+[connection signal="game_won" from="GoalHolder" to="Game Win Screen" method="_on_GoalHolder_game_won"]

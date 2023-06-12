@@ -595,9 +595,9 @@ func find_adjacent_pieces(column, row):
 		for j in range(-1, 2):
 			if is_in_grid(Vector2(column + i, row + j)):
 				if all_pieces[column + i][row + j] != null and !is_piece_sinker(column + i, row + j):
-					if all_pieces[column][i].is_row_bomb:
+					if all_pieces[column][row + j].is_row_bomb:
 						match_all_in_row(i)
-					if all_pieces[i][row].is_column_bomb:
+					if all_pieces[column + i][row].is_column_bomb:
 						match_all_in_column(i)
 					all_pieces[column +i][row + j].matched = true
 
@@ -642,4 +642,7 @@ func _on_Timer_timeout():
 
 func declare_game_over():
 	emit_signal("game_over")
+	state = wait
+
+func _on_GoalHolder_game_won():
 	state = wait
