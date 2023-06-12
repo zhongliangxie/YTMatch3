@@ -58,6 +58,8 @@ var controlling = false;
 
 # Scoring Variables
 signal update_score
+signal setup_max_score
+export (int) var max_score
 export (int) var piece_value
 var streak = 1
 
@@ -92,6 +94,7 @@ func _ready():
 	spawn_concrete()
 	spawn_slime()
 	emit_signal("update_counter", current_counter_value)
+	emit_signal("setup_max_score", max_score)
 	if !is_moves:
 		$Timer.start()
 

@@ -34,6 +34,7 @@ x_start = 64
 y_start = 800
 offset = 64
 y_offset = 2
+max_score = 5000
 piece_value = 10
 current_counter_value = 60
 sinker_piece = ExtResource( 10 )
@@ -77,6 +78,7 @@ one_shot = true
 [connection signal="make_ice" from="grid" to="ice_holder" method="_on_grid_make_ice"]
 [connection signal="make_lock" from="grid" to="lock_holder" method="_on_grid_make_lock"]
 [connection signal="make_slime" from="grid" to="slime_holder" method="_on_grid_make_slime"]
+[connection signal="setup_max_score" from="grid" to="top_ui" method="_on_grid_setup_max_score"]
 [connection signal="update_counter" from="grid" to="top_ui" method="_on_grid_update_counter"]
 [connection signal="update_score" from="grid" to="top_ui" method="_on_grid_update_score"]
 [connection signal="timeout" from="grid/Timer" to="grid" method="_on_Timer_timeout"]
