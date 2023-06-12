@@ -14,6 +14,10 @@ config/name="YT Match 3"
 run/main_scene="res://Scenes/game_window.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+ConfigManager="*res://Scripts/ConfigManager.gd"
+
 [display]
 
 window/size/width=576
