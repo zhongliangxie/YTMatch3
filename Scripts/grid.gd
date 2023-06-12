@@ -159,12 +159,13 @@ func spawn_pieces():
 					rand = floor(rand_range(0, possible_pieces.size()));
 					loops += 1;
 					piece = possible_pieces[rand].instance();
-						
 				# Instance that piece from the array
 
 				add_child(piece);
 				piece.position = grid_to_pixel(i, j);
 				all_pieces[i][j] = piece;
+	if is_deadlocked():
+		shuffle_board()
 
 func is_piece_sinker(column, row):
 	if all_pieces[column][row] != null:
@@ -568,7 +569,7 @@ func after_refill():
 	damaged_slime = false
 	color_bomb_used = false
 	if is_deadlocked():
-		print("deadlocked")
+		$ShffleTimer.start()
 	if is_moves:
 		current_counter_value -= 1
 		emit_signal("update_counter")
@@ -690,6 +691,36 @@ func copy_array(array_to_copy):
 		for j in height:
 			new_array[i][j] = array_to_copy[i][j]
 	return new_array
+
+func clear_and_store_board():
+	var holder_array = []
+	for i in width:
+		for j in height:
+			if all_pieces[i][j] != null:
+				holder_array.append(all_pieces[i][j])
+				all_pieces[i][j] = null
+	return holder_array
+
+func shuffle_board():
+	var holder_array = clear_and_store_board()
+	for i in width:
+		for j in height:
+			if !restricted_fill(Vector2(i, j)) and all_pieces[i][j] == null:
+				#choose a random number and store it
+				var rand = floor(rand_range(0, holder_array.size()))
+				var piece = holder_array[rand]
+				var loops = 0
+				while(match_at(i, j, piece.color) && loops < 100):
+					rand = floor(rand_range(0, holder_array.size()))
+					loops += 1
+					piece = holder_array[rand]
+				# Instance that piece from the array
+				piece.move(grid_to_pixel(i, j))
+				all_pieces[i][j] = piece
+				holder_array.remove(rand)
+	if is_deadlocked():
+		shuffle_board()
+	state = move
 
 func destroy_sinkers():
 	for i in width:
