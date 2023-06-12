@@ -1,7 +1,7 @@
 extends Node2D
 
 # State Machine
-enum {wait, move}
+enum {wait, move, win}
 var state
 
 # Grid Variables
@@ -252,7 +252,8 @@ func touch_input():
 			first_touch = pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y);
 			controlling = true;
 			if hint:
-				hint.call_deferred("free")
+				hint.queue_free()
+				hint = null
 	if Input.is_action_just_released("ui_touch"):
 		if is_in_grid(pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y)) && controlling:
 			controlling = false;
@@ -327,10 +328,10 @@ func _process(delta):
 func find_matches(query = false, array = all_pieces):
 	for i in width:
 		for j in height:
-			if all_pieces[i][j] != null and !is_piece_sinker(i, j):
+			if array[i][j] != null and !is_piece_sinker(i, j):
 				var current_color = array[i][j].color;
 				if i > 0 && i < width - 1:
-					if !is_piece_null(i - 1, j) && array[i + 1][j] != null:
+					if array[i - 1][j] != null && array[i + 1][j] != null:
 						if array[i - 1][j].color == current_color && array[i + 1][j].color == current_color:
 							if query:
 								match_color = current_color
@@ -374,8 +375,8 @@ func add_to_array(value, array_to_add = current_matches):
 	if !array_to_add.has(value):
 		array_to_add.append(value)
 
-func is_piece_null(column, row):
-	if all_pieces[column][row] == null:
+func is_piece_null(column, row, array = all_pieces):
+	if array[column][row] == null:
 		return true
 	return false
 
@@ -463,6 +464,7 @@ func destroy_matched():
 					emit_signal("update_score", piece_value * streak)
 	move_checked = true
 	if was_matched:
+		destroy_hint()
 		get_parent().get_node("collapse_timer").start()
 	else:
 		swap_back()
@@ -574,7 +576,6 @@ func after_refill():
 					return
 	if !damaged_slime:
 		generate_slime()
-	state = move
 	streak = 1
 	move_checked = false
 	damaged_slime = false
@@ -582,10 +583,13 @@ func after_refill():
 	if is_deadlocked():
 		$ShffleTimer.start()
 	if is_moves:
-		current_counter_value -= 1
-		emit_signal("update_counter")
-		if current_counter_value == 0:
-			declare_game_over()
+		if state != win:
+			current_counter_value -= 1
+			emit_signal("update_counter")
+			if current_counter_value == 0:
+				declare_game_over()
+			else:
+				state = move
 	$HintTimer.start()
 
 func generate_slime():
@@ -747,14 +751,14 @@ func find_all_matches():
 	for i in width:
 		for j in height:
 			if clone_array[i][j] != null:
-				if switch_and_check(Vector2(i,j), Vector2(1, 0), clone_array):
+				if switch_and_check(Vector2(i,j), Vector2(1, 0), clone_array) and is_in_grid(Vector2(i + 1, j)):
 					#add the piece i,j to the hint_holder
 					if match_color != "":
 						if match_color == clone_array[i][j].color:
 							hint_holder.append(clone_array[i][j])
 						else:
 							hint_holder.append(clone_array[i + 1][j])
-				if switch_and_check(Vector2(i,j), Vector2(0, 1), clone_array):
+				if switch_and_check(Vector2(i,j), Vector2(0, 1), clone_array) and is_in_grid(Vector2(i, j+1)):
 					#add the piece i,j to the hint_holder
 					if match_color != "":
 						if match_color == clone_array[i][j].color:
@@ -767,11 +771,18 @@ func find_all_matches():
 func generate_hint():
 	var hints = find_all_matches()
 	if hints != null:
-		var rand = floor(rand_range(0, hints.size()))
-		hint = hint_effect.instance()
-		add_child(hint)
-		hint.position =  hints[rand].position
-		hint.Setup(hints[rand].get_node("Sprite").texture)
+		if hints.size() > 0:
+			destroy_hint()
+			var rand = floor(rand_range(0, hints.size()))
+			hint = hint_effect.instance()
+			add_child(hint)
+			hint.position =  hints[rand].position
+			hint.Setup(hints[rand].get_node("Sprite").texture)
+
+func destroy_hint():
+	if hint:
+		hint.queue_free()
+		hint = null
 
 func _on_destory_timer_timeout():
 	destroy_matched();
@@ -802,7 +813,8 @@ func _on_Timer_timeout():
 	current_counter_value -= 1
 	emit_signal("update_counter")
 	if current_counter_value == 0:
-		declare_game_over()
+		if state != win:
+			declare_game_over()
 		$Timer.stop()
 
 func declare_game_over():
@@ -810,7 +822,7 @@ func declare_game_over():
 	state = wait
 
 func _on_GoalHolder_game_won():
-	state = wait
+	state = win
 
 func _on_ShuffleTimer_timeout():
 	shuffle_board()
