@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://art/Bottom UI v 2.png" type="Texture" id=1]
 [ext_resource path="res://art/UI/Make Color Bomb Button.png" type="Texture" id=2]
@@ -6,6 +6,8 @@
 [ext_resource path="res://art/UI/Pause Button.png" type="Texture" id=4]
 [ext_resource path="res://art/UI/Mallet Button.png" type="Texture" id=5]
 [ext_resource path="res://Scripts/bottom_ui.gd" type="Script" id=6]
+[ext_resource path="res://Scripts/Booster.gd" type="Script" id=7]
+[ext_resource path="res://Scripts/BoosterManager.gd" type="Script" id=8]
 
 [node name="bottom_ui" type="TextureRect"]
 margin_top = 928.0
@@ -29,6 +31,7 @@ margin_right = 576.0
 margin_bottom = 72.0
 custom_constants/separation = 24
 alignment = 1
+script = ExtResource( 8 )
 
 [node name="Pause" type="TextureButton" parent="MarginContainer/HBoxContainer"]
 margin_left = 52.0
@@ -39,7 +42,7 @@ texture_normal = ExtResource( 4 )
 expand = true
 stretch_mode = 5
 
-[node name="Booster1" type="TextureButton" parent="MarginContainer/HBoxContainer"]
+[node name="Booster1" type="TextureButton" parent="MarginContainer/HBoxContainer" groups=["Boosters"]]
 margin_left = 176.0
 margin_right = 276.0
 margin_bottom = 122.0
@@ -47,8 +50,9 @@ rect_min_size = Vector2( 100, 100 )
 texture_normal = ExtResource( 2 )
 expand = true
 stretch_mode = 5
+script = ExtResource( 7 )
 
-[node name="Booster2" type="TextureButton" parent="MarginContainer/HBoxContainer"]
+[node name="Booster2" type="TextureButton" parent="MarginContainer/HBoxContainer" groups=["Boosters"]]
 margin_left = 300.0
 margin_right = 400.0
 margin_bottom = 122.0
@@ -56,8 +60,9 @@ rect_min_size = Vector2( 100, 100 )
 texture_normal = ExtResource( 5 )
 expand = true
 stretch_mode = 5
+script = ExtResource( 7 )
 
-[node name="Booster3" type="TextureButton" parent="MarginContainer/HBoxContainer"]
+[node name="Booster3" type="TextureButton" parent="MarginContainer/HBoxContainer" groups=["Boosters"]]
 margin_left = 424.0
 margin_right = 524.0
 margin_bottom = 122.0
@@ -65,5 +70,6 @@ rect_min_size = Vector2( 100, 100 )
 texture_normal = ExtResource( 3 )
 expand = true
 stretch_mode = 5
+script = ExtResource( 7 )
 
 [connection signal="pressed" from="MarginContainer/HBoxContainer/Pause" to="." method="_on_Pause_pressed"]
