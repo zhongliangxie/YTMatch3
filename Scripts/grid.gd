@@ -44,7 +44,8 @@ preload("res://Scenes/orange_piece.tscn"),
 ];
 
 # The current pieces in the scene
-var all_pieces = [];
+var all_pieces = []
+var clone_array = []
 var current_matches = []
 
 # Swap Back Variables
@@ -92,6 +93,7 @@ func _ready():
 	state = move
 	randomize();
 	all_pieces = make_2d_array()
+	clone_array = make_2d_array()
 	spawn_preset_pieces()
 	if sinkers_in_scene:
 		spawn_sinker(max_sinkers)
@@ -126,10 +128,11 @@ func restricted_move(place):
 	return false
 
 func is_in_array(array, item):
-	for i in array.size():
-		if array[i] == item:
-			return true
-	return false
+	if array != null:
+		for i in array.size():
+			if array[i] == item:
+				return true
+		return false
 
 func remove_from_array(array, item):
 	for i in range(array.size() - 1, -1, -1):
@@ -170,20 +173,24 @@ func is_piece_sinker(column, row):
 	return false
 
 func spawn_ice():
-	for i in ice_spaces.size():
-		emit_signal("make_ice", ice_spaces[i])
+	if ice_spaces != null:
+		for i in ice_spaces.size():
+			emit_signal("make_ice", ice_spaces[i])
 
 func spawn_locks():
-	for i in lock_spaces.size():
-		emit_signal("make_lock", lock_spaces[i])
+	if lock_spaces != null:
+		for i in lock_spaces.size():
+			emit_signal("make_lock", lock_spaces[i])
 
 func spawn_concrete():
-	for i in concrete_spaces.size():
-		emit_signal("make_concrete", concrete_spaces[i])
+	if concrete_spaces != null:
+		for i in concrete_spaces.size():
+			emit_signal("make_concrete", concrete_spaces[i])
 
 func spawn_slime():
-	for i in slime_spaces.size():
-		emit_signal("make_slime", slime_spaces[i])
+	if slime_spaces != null:
+		for i in slime_spaces.size():
+			emit_signal("make_slime", slime_spaces[i])
 
 func spawn_sinker(number_to_spawn):
 	for i in number_to_spawn:
@@ -197,12 +204,13 @@ func spawn_sinker(number_to_spawn):
 		current_sinkers += 1
 
 func spawn_preset_pieces():
-	if preset_spaces.size() > 0:
-		for i in preset_spaces.size():
-			var piece = possible_pieces[preset_spaces[i].z].instance()
-			add_child(piece)
-			piece.position = grid_to_pixel(preset_spaces[i].x, preset_spaces[i].y)
-			all_pieces[preset_spaces[i].x][preset_spaces[i].y] = piece
+	if preset_spaces != null:
+		if preset_spaces.size() > 0:
+			for i in preset_spaces.size():
+				var piece = possible_pieces[preset_spaces[i].z].instance()
+				add_child(piece)
+				piece.position = grid_to_pixel(preset_spaces[i].x, preset_spaces[i].y)
+				all_pieces[preset_spaces[i].x][preset_spaces[i].y] = piece
 
 func match_at(i, j, color):
 	if i > 1:
@@ -306,29 +314,35 @@ func _process(delta):
 	if state == move:
 		touch_input();
 
-func find_matches():
+func find_matches(query = false, array = all_pieces):
 	for i in width:
 		for j in height:
 			if all_pieces[i][j] != null and !is_piece_sinker(i, j):
-				var current_color = all_pieces[i][j].color;
+				var current_color = array[i][j].color;
 				if i > 0 && i < width - 1:
-					if !is_piece_null(i - 1, j) && all_pieces[i + 1][j] != null:
-						if all_pieces[i - 1][j].color == current_color && all_pieces[i + 1][j].color == current_color:
-							match_and_dim(all_pieces[i - 1][j])
-							match_and_dim(all_pieces[i][j])
-							match_and_dim(all_pieces[i + 1][j])
+					if !is_piece_null(i - 1, j) && array[i + 1][j] != null:
+						if array[i - 1][j].color == current_color && array[i + 1][j].color == current_color:
+							if query:
+								return true
+							match_and_dim(array[i - 1][j])
+							match_and_dim(array[i][j])
+							match_and_dim(array[i + 1][j])
 							add_to_array(Vector2(i, j))
 							add_to_array(Vector2(i + 1, j))
 							add_to_array(Vector2(i - 1, j))
 				if j > 0 && j < height - 1:
-					if all_pieces[i][j - 1] != null && all_pieces[i][j + 1] != null:
-						if all_pieces[i][j - 1].color == current_color && all_pieces[i][j + 1].color == current_color:
-							match_and_dim(all_pieces[i][j - 1])
-							match_and_dim(all_pieces[i][j])
-							match_and_dim(all_pieces[i][j + 1])
+					if array[i][j - 1] != null && array[i][j + 1] != null:
+						if array[i][j - 1].color == current_color && array[i][j + 1].color == current_color:
+							if query:
+								return true
+							match_and_dim(array[i][j - 1])
+							match_and_dim(array[i][j])
+							match_and_dim(array[i][j + 1])
 							add_to_array(Vector2(i, j))
 							add_to_array(Vector2(i, j + 1))
 							add_to_array(Vector2(i, j - 1))
+	if query:
+		return false
 	get_bombed_pieces()
 	get_parent().get_node("destory_timer").start();
 
@@ -548,10 +562,13 @@ func after_refill():
 					return
 	if !damaged_slime:
 		generate_slime()
-	move_checked = false
 	state = move
 	streak = 1
+	move_checked = false
 	damaged_slime = false
+	color_bomb_used = false
+	if is_deadlocked():
+		print("deadlocked")
 	if is_moves:
 		current_counter_value -= 1
 		emit_signal("update_counter")
@@ -635,6 +652,44 @@ func find_adjacent_pieces(column, row):
 					if all_pieces[column + i][row + j].is_color_bomb:
 						match_color(all_pieces[column + i][row + j].color)
 					all_pieces[column +i][row + j].matched = true
+
+func switch_pieces(place, direction, array):
+	if is_in_grid(place) and !restricted_fill(place):	
+		if is_in_grid(place + direction) and !restricted_fill(place + direction):
+			# First, hold the piece to swap with
+			var holder = array[place.x + direction.x][place.y + direction.y]
+			# Then set the swap spot as the original piece
+			array[place.x + direction.x][place.y + direction.y] = array[place.x][place.y]
+			# Then set the original spot as the other piece
+			array[place.x][place.y] = holder
+
+func is_deadlocked():
+	# Create a copy of the all_pieces array
+	clone_array = copy_array(all_pieces)
+	for i in width:
+		for j in height:
+			#switch and check right
+			if switch_and_check(Vector2(i, j), Vector2(1, 0), clone_array):
+				return false
+			#switch and check up
+			if switch_and_check(Vector2(i, j), Vector2(0, 1), clone_array):
+				return false
+	return true
+
+func switch_and_check(place, direction, array):
+	switch_pieces(place, direction, array)
+	if find_matches(true, array):
+		switch_pieces(place, direction, array)
+		return true
+	switch_pieces(place, direction, array)
+	return false
+
+func copy_array(array_to_copy):
+	var new_array = make_2d_array()
+	for i in width:
+		for j in height:
+			new_array[i][j] = array_to_copy[i][j]
+	return new_array
 
 func destroy_sinkers():
 	for i in width:
