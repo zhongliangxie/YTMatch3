@@ -1,7 +1,11 @@
 extends "res://Scripts/BaseMenuPanel.gd"
 
+var is_out = false
+
 func _on_ContinueButton_pressed():
-	get_tree().change_scene("res://Scenes/Game Menu.tscn")
+	get_tree().change_scene("res://Scenes/LevelSelectScene.tscn")
 
 func _on_GoalHolder_game_won():
-	slide_in()
+	if is_out == false:
+		is_out = true
+		slide_in()

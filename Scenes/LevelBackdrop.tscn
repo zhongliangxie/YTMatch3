@@ -17,15 +17,19 @@ enabled = true
 [node name="LevelButton2" parent="." instance=ExtResource( 1 )]
 position = Vector2( 281, 151 )
 level = 2
+level_to_load = "res://Scenes/levels/level_2.tscn"
 
 [node name="LevelButton3" parent="." instance=ExtResource( 1 )]
 position = Vector2( 501, 125 )
 level = 3
+level_to_load = "res://Scenes/levels/level_3.tscn"
 
 [node name="LevelButton4" parent="." instance=ExtResource( 1 )]
 position = Vector2( 479, 422 )
 level = 4
+level_to_load = "res://Scenes/levels/level_4.tscn"
 
 [node name="LevelButton5" parent="." instance=ExtResource( 1 )]
 position = Vector2( 238, 438 )
 level = 5
+level_to_load = "res://Scenes/levels/level_5.tscn"

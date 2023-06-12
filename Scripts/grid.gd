@@ -39,7 +39,7 @@ preload("res://Scenes/yellow_piece.tscn"),
 preload("res://Scenes/blue_piece.tscn"),
 preload("res://Scenes/pink_piece.tscn"),
 preload("res://Scenes/orange_piece.tscn"),
-#preload("res://Scenes/green_piece.tscn"),
+preload("res://Scenes/green_piece.tscn"),
 #preload("res://Scenes/light_piece.tscn")	
 ];
 
