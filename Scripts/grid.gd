@@ -113,6 +113,7 @@ signal camera_effect
 
 # Booster Stuff
 var current_booster_type
+signal extra_input
 
 func _ready():
 	randomize();
@@ -346,6 +347,16 @@ func touch_difference(grid_1, grid_2):
 func _process(delta):
 	if can_move:
 		touch_input()
+	else:
+		extra_input()
+
+func extra_input():
+	if Input.is_action_just_pressed("ui_touch"):
+		var temp_position = Vector2(pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y))
+		if is_in_grid(temp_position):
+			emit_signal("extra_input", true)
+		else:
+			emit_signal("extra_input", false)
 
 func find_matches(query = false, array = all_pieces):
 	for i in width:

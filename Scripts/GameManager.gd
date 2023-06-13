@@ -35,6 +35,7 @@ signal game_lost
 # Booster Stuff
 var booster_active = false
 signal grid_change_move
+var current_booster
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -86,14 +87,28 @@ func goals_met():
 	return true
 
 func update_counter():
-	current_counter -= 1
-	if current_counter < 0:
-		current_counter = 0
-		if !game_lost and board_stabel:
-			emit_signal("game_lost")
-			game_lost = true
-			$MoveTimer.one_shot = true
-	emit_signal("set_counter_info", current_counter)
+	if !booster_active:
+		current_counter -= 1
+		if current_counter < 0:
+			current_counter = 0
+			if !game_lost and board_stabel:
+				emit_signal("game_lost")
+				game_lost = true
+				$MoveTimer.one_shot = true
+		emit_signal("set_counter_info", current_counter)
+
+func booster_function():
+	if booster_active:	
+		if current_booster == "Add To Counter":
+			current_counter += 10
+			if current_counter > max_counter:
+				current_counter = max_counter
+			emit_signal("set_counter_info", current_counter)
+		elif current_booster == "Color Bomb":
+			pass
+		elif current_booster == "Destroy Piece":
+			pass
+		_on_bottom_ui_booster(current_booster)
 
 # GameManager Signals
 func _on_grid_update_score(streak_value):
@@ -119,12 +134,22 @@ func _on_grid_change_move_state():
 	change_board_state()
 
 
-func _on_bottom_ui_booster():
+func _on_bottom_ui_booster(booster_type):
 	if booster_active and board_stabel:
+		current_booster = ""
 		emit_signal("screen_fade_out")
 		emit_signal("grid_change_move")
 		booster_active = false
 	elif !booster_active and board_stabel:
+		current_booster = booster_type
 		emit_signal("screen_fade_in")
 		emit_signal("grid_change_move")
 		booster_active = true
+
+
+func _on_grid_extra_input(is_valid_input):
+	if is_valid_input and booster_active:
+		booster_function()
+	elif !is_valid_input and booster_active:
+		_on_bottom_ui_booster(current_booster)
+	

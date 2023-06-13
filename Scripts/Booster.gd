@@ -1,5 +1,9 @@
 extends TextureButton
-
+"""
+This is a script to hold information peratining to boosters.
+At the moment the only boosters are: Color bombs, adding to the
+counter, and destroying a specific piece.
+"""
 enum {add_to_counter, make_color_bomb, destroy_piece}
 var state
 
@@ -11,9 +15,6 @@ export (Texture) var color_bomb_texture
 export (Texture) var add_counter_texture
 export (Texture) var destroy_piece_texture
 var type = ""
-
-func _ready():
-	pass # Replace with function body.
 
 func check_active(is_active, booster_type):
 	if is_active:
