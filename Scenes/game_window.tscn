@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://art/background 2.png" type="Texture" id=1]
 [ext_resource path="res://Scenes/bottom_ui.tscn" type="PackedScene" id=2]
@@ -12,9 +12,7 @@
 [ext_resource path="res://Scenes/Sinker.tscn" type="PackedScene" id=10]
 [ext_resource path="res://Scripts/GoalHolder.gd" type="Script" id=11]
 [ext_resource path="res://Scenes/GoalPrefab.tscn" type="PackedScene" id=12]
-[ext_resource path="res://art/Obstacles/Ice.png" type="Texture" id=13]
 [ext_resource path="res://Scenes/Game Win Screen.tscn" type="PackedScene" id=14]
-[ext_resource path="res://Scenes/Goal.tscn" type="PackedScene" id=15]
 [ext_resource path="res://Scenes/Pause.tscn" type="PackedScene" id=16]
 [ext_resource path="res://Scenes/HintEffect.tscn" type="PackedScene" id=17]
 [ext_resource path="res://Scripts/MusicPlayer.gd" type="Script" id=18]
@@ -95,11 +93,6 @@ one_shot = true
 
 [node name="GoalHolder" type="Node" parent="."]
 script = ExtResource( 11 )
-
-[node name="Goal" parent="GoalHolder" instance=ExtResource( 15 )]
-goal_texture = ExtResource( 13 )
-max_needed = 22
-goal_string = "ice"
 
 [node name="Game Win Screen" parent="." instance=ExtResource( 14 )]
 

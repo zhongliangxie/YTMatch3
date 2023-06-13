@@ -18,7 +18,12 @@ onready var star = $Sprite
 
 func _ready():
 	if GameDataManager.level_info.has(level):
+		print(GameDataManager.level_info[level])
 		enabled = GameDataManager.level_info[level]["unlocked"]
+		if GameDataManager.level_info[level]["stars unlocked"] == 1:
+			score_goal_met = true
+		else:
+			score_goal_met =false
 	else:
 		enabled = false
 	setup()

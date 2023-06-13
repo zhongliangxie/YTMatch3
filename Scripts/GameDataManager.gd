@@ -11,6 +11,7 @@ var default_level_info = {
 onready var path = "user://save.dat"
 
 func _ready():
+	print(level_info)
 	level_info = load_data()
 
 func save_data():
