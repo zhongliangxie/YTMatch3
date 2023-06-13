@@ -74,10 +74,10 @@ var streak = 1
 
 # Counter Variables
 signal update_counter
-export(int) var current_counter_value
+export(int) var current_counter_value = 0
 export(bool) var is_moves
 signal game_over
-
+signal set_max_counter
 # Goal Check Stuff
 signal check_goal
 
@@ -102,9 +102,10 @@ signal place_camera
 signal camera_effect
 
 # Booster Stuff
-var booster_type
+var current_booster_type
 
 func _ready():
+	emit_signal("set_max_counter", current_counter_value)
 	state = move
 	randomize();
 	move_camera()
@@ -124,7 +125,7 @@ func _ready():
 		$Timer.start()
 
 func move_camera():
-	var new_pos = Vector2(grid_to_pixel(width/2-0.5, height/2-0.5))
+	var new_pos = Vector2(grid_to_pixel(float(width-1)/2, float(height-1)/2))
 	emit_signal("place_camera", new_pos)
 
 func restricted_fill(place):
@@ -805,13 +806,37 @@ func destroy_hint():
 func cam_effect():
 	emit_signal("camera_effect")
 
+func make_booster_active(booster_type):
+	if state == move:
+		state = booster
+		current_booster_type = booster_type
+	elif state == booster:
+		state = move
+		current_booster_type = ""
+
 func booster_input():
 	if Input.is_action_just_pressed("ui_touch"):
-		var temp = pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y)
-		if is_in_grid(temp):
-			if all_pieces[temp.x][temp.y] != null:
-				all_pieces[temp.x][temp.y].make_color_bomb()
-				state = move
+		if current_booster_type == "Color Bomb":
+			make_color_bomb(pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y))
+		elif current_booster_type == "Add To Counter":
+			var temp = get_global_mouse_position()
+			if is_in_grid(pixel_to_grid(temp.x, temp.y)):
+				add_to_counter()
+				print("added to counter")
+
+func add_to_counter():
+	if is_moves:
+		emit_signal("update_counter", 5)
+	else:
+		emit_signal("update_counter", 10)
+	state = move
+	print(current_counter_value)
+
+func make_color_bomb(grid_position):
+	if is_in_grid(grid_position):
+		if all_pieces[grid_position.x][grid_position.y] != null:
+			all_pieces[grid_position.x][grid_position.y].make_color_bomb()
+			state = move
 
 func _on_destory_timer_timeout():
 	destroy_matched();
@@ -859,12 +884,5 @@ func _on_ShuffleTimer_timeout():
 func _on_HintTimer_timeout():
 	generate_hint()
 
-func _on_bottom_ui_booster_pressed(type):
-	if state == move:
-		state = booster
-		booster_type = type
-		print(booster_type)
-	elif state == booster:
-		state = move
-	print(state)
-
+func _on_bottom_ui_booster(booster_type):
+	make_booster_active(booster_type)

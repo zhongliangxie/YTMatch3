@@ -53,7 +53,6 @@ y_offset = 2
 hint_effect = ExtResource( 17 )
 max_score = 5000
 piece_value = 10
-current_counter_value = 30
 is_moves = true
 sinker_piece = ExtResource( 10 )
 
@@ -110,7 +109,7 @@ goal_string = "ice"
 script = ExtResource( 18 )
 
 [connection signal="notfiy_of_level" from="CanvasLayer/top_ui" to="GoalHolder" method="_on_top_ui_notfiy_of_level"]
-[connection signal="booster_pressed" from="CanvasLayer/bottom_ui" to="grid" method="_on_bottom_ui_booster_pressed"]
+[connection signal="booster" from="CanvasLayer/bottom_ui" to="grid" method="_on_bottom_ui_booster"]
 [connection signal="pause_game" from="CanvasLayer/bottom_ui" to="Pause" method="_on_bottom_ui_pause_game"]
 [connection signal="camera_effect" from="grid" to="Camera2D" method="_on_grid_camera_effect"]
 [connection signal="check_goal" from="grid" to="CanvasLayer/top_ui" method="_on_grid_check_goal"]
@@ -126,6 +125,7 @@ script = ExtResource( 18 )
 [connection signal="make_slime" from="grid" to="slime_holder" method="_on_grid_make_slime"]
 [connection signal="place_camera" from="grid" to="Camera2D" method="_on_grid_place_camera"]
 [connection signal="play_sound" from="grid" to="MusicPlayer" method="_on_grid_play_sound"]
+[connection signal="set_max_counter" from="grid" to="CanvasLayer/top_ui" method="_on_grid_set_max_counter"]
 [connection signal="setup_max_score" from="grid" to="CanvasLayer/top_ui" method="_on_grid_setup_max_score"]
 [connection signal="update_counter" from="grid" to="CanvasLayer/top_ui" method="_on_grid_update_counter"]
 [connection signal="update_score" from="grid" to="CanvasLayer/top_ui" method="_on_grid_update_score"]
