@@ -21,6 +21,8 @@ export (int) var points_per_piece
 signal set_dimensions
 signal set_score_info
 signal set_counter_info
+signal screen_fade_in
+signal screen_fade_out
 
 # Goal Stuff
 onready var goal_holder =$GoalHolder
@@ -29,6 +31,10 @@ var game_lost = false
 signal create_goal
 signal game_won
 signal game_lost
+
+# Booster Stuff
+var booster_active = false
+signal grid_change_move
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -65,7 +71,7 @@ func check_goals(goal_type):
 
 func check_game__win():
 	if goals_met() and board_stabel:
-		emit_signal("game_won")
+		emit_signal("game_won", current_score)
 		GameDataManager.level_info[level + 1] = {
 			"unlocked": true,
 			"high score": 0,
@@ -111,3 +117,14 @@ func _on_ice_holder_break_ice(goal_type):
 
 func _on_grid_change_move_state():
 	change_board_state()
+
+
+func _on_bottom_ui_booster():
+	if booster_active and board_stabel:
+		emit_signal("screen_fade_out")
+		emit_signal("grid_change_move")
+		booster_active = false
+	elif !booster_active and board_stabel:
+		emit_signal("screen_fade_in")
+		emit_signal("grid_change_move")
+		booster_active = true
