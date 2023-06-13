@@ -125,7 +125,7 @@ func _ready():
 		$Timer.start()
 
 func move_camera():
-	var new_pos = Vector2(grid_to_pixel(float(width-1)/2, float(height-1)/2))
+	var new_pos = grid_to_pixel(float(width-1)/2, float(height-1)/2)
 	emit_signal("place_camera", new_pos)
 
 func restricted_fill(place):
