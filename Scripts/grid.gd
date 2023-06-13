@@ -4,6 +4,10 @@ extends Node2D
 enum {wait, move, win, booster}
 var state
 
+# Stable Variables
+var can_move = true
+signal change_move_state
+
 # Grid Variables
 var width;
 var height;
@@ -111,8 +115,6 @@ signal camera_effect
 var current_booster_type
 
 func _ready():
-#	emit_signal("set_max_counter", current_counter_value)
-	state = move
 	randomize();
 	move_camera()
 	all_pieces = make_2d_array()
@@ -125,8 +127,6 @@ func _ready():
 	spawn_locks()
 	spawn_concrete()
 	spawn_slime()
-#	emit_signal("update_counter", current_counter_value)
-#	emit_signal("setup_max_score", max_score)
 
 func move_camera():
 	var new_pos = grid_to_pixel(float(width-1)/2, float(height-1)/2)
@@ -300,7 +300,8 @@ func swap_pieces(column, row, direction):
 					match_and_dim(other_piece)
 					add_to_array(Vector2(column + direction.x, row + direction.y))
 			store_info(first_piece, other_piece, Vector2(column, row), direction)
-			state = wait
+			can_move = false
+			emit_signal("change_move_state")
 			all_pieces[column][row] = other_piece;
 			all_pieces[column + direction.x][row + direction.y] = first_piece;
 			first_piece.move(grid_to_pixel(column + direction.x, row + direction.y));
@@ -324,7 +325,8 @@ func swap_back():
 	# Move the previously swapped pieces back to the previous place.
 	if piece_one != null && piece_two != null:
 		swap_pieces(last_place.x, last_place.y, last_direction)
-	state = move
+	can_move = true
+	emit_signal("change_move_state")
 	move_checked = false
 	$HintTimer.start()
 
@@ -342,11 +344,12 @@ func touch_difference(grid_1, grid_2):
 			swap_pieces(grid_1.x, grid_1.y, Vector2(0, -1));
 
 func _process(delta):
-	if state == move:
+	if can_move:
 		touch_input()
+	"""
 	elif state == booster:
 		booster_input()
-
+	"""
 func find_matches(query = false, array = all_pieces):
 	for i in width:
 		for j in height:
@@ -606,18 +609,10 @@ func after_refill():
 	color_bomb_used = false
 	if is_deadlocked():
 		$ShffleTimer.start()
-	"""
-	if is_moves:
-		if state != win:
-			current_counter_value -= 1
-			emit_signal("update_counter")
-			if current_counter_value == 0:
-				declare_game_over()
-			else:
-				state = move
-	"""
+
+	can_move = true
+	emit_signal("change_move_state")
 	emit_signal("update_counter")
-	state = move
 	$HintTimer.start()
 
 func generate_slime():
@@ -764,7 +759,8 @@ func shuffle_board():
 				holder_array.remove(rand)
 	if is_deadlocked():
 		shuffle_board()
-	state = move
+	can_move = true
+	emit_signal("change_move_state")
 
 func destroy_sinkers():
 	for i in width:
@@ -815,13 +811,14 @@ func cam_effect():
 	emit_signal("camera_effect")
 
 func make_booster_active(booster_type):
+	"""
 	if state == move:
 		state = booster
 		current_booster_type = booster_type
 	elif state == booster:
 		state = move
 		current_booster_type = ""
-
+	"""
 func booster_input():
 	if Input.is_action_just_pressed("ui_touch"):
 		if current_booster_type == "Color Bomb":
@@ -839,14 +836,15 @@ func add_to_counter():
 	else:
 		emit_signal("update_counter", 10)
 	"""
-	state = move
-
+	can_move = true
+	emit_signal("change_move_state")
 
 func make_color_bomb(grid_position):
 	if is_in_grid(grid_position):
 		if all_pieces[grid_position.x][grid_position.y] != null:
 			all_pieces[grid_position.x][grid_position.y].make_color_bomb()
-			state = move
+			can_move = true
+			emit_signal("change_move_state")
 
 func _on_destory_timer_timeout():
 	destroy_matched();
@@ -875,10 +873,11 @@ func _on_slime_holder_remove_slime(place):
 
 func declare_game_over():
 	emit_signal("game_over")
-	state = wait
-
+	can_move = false
+	emit_signal("change_move_state")
 func _on_GoalHolder_game_won():
-	state = win
+	can_move = true
+	emit_signal("change_move_state")
 
 func _on_ShuffleTimer_timeout():
 	shuffle_board()
