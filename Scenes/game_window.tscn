@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://art/background 2.png" type="Texture" id=1]
 [ext_resource path="res://Scenes/bottom_ui.tscn" type="PackedScene" id=2]
@@ -12,7 +12,9 @@
 [ext_resource path="res://Scenes/Sinker.tscn" type="PackedScene" id=10]
 [ext_resource path="res://Scripts/GoalHolder.gd" type="Script" id=11]
 [ext_resource path="res://Scenes/GoalPrefab.tscn" type="PackedScene" id=12]
+[ext_resource path="res://art/Obstacles/Ice.png" type="Texture" id=13]
 [ext_resource path="res://Scenes/Game Win Screen.tscn" type="PackedScene" id=14]
+[ext_resource path="res://Scenes/Goal.tscn" type="PackedScene" id=15]
 [ext_resource path="res://Scenes/Pause.tscn" type="PackedScene" id=16]
 [ext_resource path="res://Scenes/HintEffect.tscn" type="PackedScene" id=17]
 [ext_resource path="res://Scripts/MusicPlayer.gd" type="Script" id=18]
@@ -34,6 +36,7 @@ texture = ExtResource( 1 )
 margin_right = 576.0
 margin_bottom = 192.0
 goal_prefab = ExtResource( 12 )
+current_level = 1
 
 [node name="bottom_ui" parent="CanvasLayer" instance=ExtResource( 2 )]
 margin_top = 932.0
@@ -41,8 +44,8 @@ margin_bottom = 1024.0
 
 [node name="grid" type="Node2D" parent="."]
 script = ExtResource( 4 )
-width = 4
-height = 4
+width = 7
+height = 7
 x_start = 64
 y_start = 800
 offset = 64
@@ -94,6 +97,11 @@ one_shot = true
 [node name="GoalHolder" type="Node" parent="."]
 script = ExtResource( 11 )
 
+[node name="Goal" parent="GoalHolder" instance=ExtResource( 15 )]
+goal_texture = ExtResource( 13 )
+max_needed = 22
+goal_string = "ice"
+
 [node name="Game Win Screen" parent="." instance=ExtResource( 14 )]
 
 [node name="Pause" parent="." instance=ExtResource( 16 )]
@@ -102,6 +110,7 @@ script = ExtResource( 11 )
 script = ExtResource( 18 )
 
 [connection signal="notfiy_of_level" from="CanvasLayer/top_ui" to="GoalHolder" method="_on_top_ui_notfiy_of_level"]
+[connection signal="booster_pressed" from="CanvasLayer/bottom_ui" to="grid" method="_on_bottom_ui_booster_pressed"]
 [connection signal="pause_game" from="CanvasLayer/bottom_ui" to="Pause" method="_on_bottom_ui_pause_game"]
 [connection signal="camera_effect" from="grid" to="Camera2D" method="_on_grid_camera_effect"]
 [connection signal="check_goal" from="grid" to="CanvasLayer/top_ui" method="_on_grid_check_goal"]

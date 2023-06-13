@@ -1,7 +1,7 @@
 extends Node2D
 
 # State Machine
-enum {wait, move, win}
+enum {wait, move, win, booster}
 var state
 
 # Grid Variables
@@ -100,6 +100,9 @@ signal play_sound
 #Camera Stuff
 signal place_camera
 signal camera_effect
+
+# Booster Stuff
+var booster_type
 
 func _ready():
 	state = move
@@ -335,7 +338,9 @@ func touch_difference(grid_1, grid_2):
 
 func _process(delta):
 	if state == move:
-		touch_input();
+		touch_input()
+	elif state == booster:
+		booster_input()
 
 func find_matches(query = false, array = all_pieces):
 	for i in width:
@@ -800,6 +805,14 @@ func destroy_hint():
 func cam_effect():
 	emit_signal("camera_effect")
 
+func booster_input():
+	if Input.is_action_just_pressed("ui_touch"):
+		var temp = pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y)
+		if is_in_grid(temp):
+			if all_pieces[temp.x][temp.y] != null:
+				all_pieces[temp.x][temp.y].make_color_bomb()
+				state = move
+
 func _on_destory_timer_timeout():
 	destroy_matched();
 
@@ -845,3 +858,13 @@ func _on_ShuffleTimer_timeout():
 
 func _on_HintTimer_timeout():
 	generate_hint()
+
+func _on_bottom_ui_booster_pressed(type):
+	if state == move:
+		state = booster
+		booster_type = type
+		print(booster_type)
+	elif state == booster:
+		state = move
+	print(state)
+

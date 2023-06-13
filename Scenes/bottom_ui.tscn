@@ -51,6 +51,9 @@ texture_normal = ExtResource( 2 )
 expand = true
 stretch_mode = 5
 script = ExtResource( 7 )
+color_bomb_texture = ExtResource( 2 )
+add_counter_texture = ExtResource( 3 )
+destroy_piece_texture = ExtResource( 5 )
 
 [node name="Booster2" type="TextureButton" parent="MarginContainer/HBoxContainer" groups=["Boosters"]]
 margin_left = 300.0
@@ -61,6 +64,9 @@ texture_normal = ExtResource( 5 )
 expand = true
 stretch_mode = 5
 script = ExtResource( 7 )
+color_bomb_texture = ExtResource( 2 )
+add_counter_texture = ExtResource( 3 )
+destroy_piece_texture = ExtResource( 5 )
 
 [node name="Booster3" type="TextureButton" parent="MarginContainer/HBoxContainer" groups=["Boosters"]]
 margin_left = 424.0
@@ -71,5 +77,11 @@ texture_normal = ExtResource( 3 )
 expand = true
 stretch_mode = 5
 script = ExtResource( 7 )
+color_bomb_texture = ExtResource( 2 )
+add_counter_texture = ExtResource( 3 )
+destroy_piece_texture = ExtResource( 5 )
 
 [connection signal="pressed" from="MarginContainer/HBoxContainer/Pause" to="." method="_on_Pause_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/Booster1" to="." method="_on_Booster1_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/Booster2" to="." method="_on_Booster2_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/Booster3" to="." method="_on_Booster3_pressed"]
