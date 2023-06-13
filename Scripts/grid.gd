@@ -5,8 +5,8 @@ enum {wait, move, win, booster}
 var state
 
 # Grid Variables
-export (int) var width;
-export (int) var height;
+var width;
+var height;
 export (int) var x_start;
 export (int) var y_start;
 export (int) var offset;
@@ -70,9 +70,9 @@ var controlling = false;
 
 # Scoring Variables
 signal update_score
-signal setup_max_score
-export (int) var max_score
-export (int) var piece_value
+#signal setup_max_score
+#export (int) var max_score
+#export (int) var piece_value
 var streak = 1
 
 # Counter Variables
@@ -123,7 +123,7 @@ func _ready():
 	spawn_concrete()
 	spawn_slime()
 	emit_signal("update_counter", current_counter_value)
-	emit_signal("setup_max_score", max_score)
+#	emit_signal("setup_max_score", max_score)
 	if !is_moves:
 		$Timer.start()
 
@@ -484,7 +484,7 @@ func destroy_matched():
 					make_effect(animated_effect, i, j)
 					emit_signal("play_sound")
 					cam_effect()
-					emit_signal("update_score", piece_value * streak)
+					emit_signal("update_score", streak)
 	move_checked = true
 	if was_matched:
 		destroy_hint()
@@ -889,3 +889,8 @@ func _on_HintTimer_timeout():
 
 func _on_bottom_ui_booster(booster_type):
 	make_booster_active(booster_type)
+
+
+func _on_GameManager_set_dimensions(new_width, new_height):
+	width = new_width
+	height = new_height
