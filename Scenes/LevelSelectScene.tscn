@@ -38,4 +38,5 @@ texture_normal = ExtResource( 4 )
 expand = true
 stretch_mode = 5
 
+[connection signal="save_scroll_value" from="ScrollContainer/VBoxContainer/LevelBackdrop" to="." method="_on_LevelBackdrop_save_scroll_value"]
 [connection signal="pressed" from="TextureButton" to="." method="_on_TextureButton_pressed"]

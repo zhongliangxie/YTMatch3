@@ -1,12 +1,14 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Scenes/LevelButton.tscn" type="PackedScene" id=1]
 [ext_resource path="res://art/Level Select Map 1.png" type="Texture" id=2]
+[ext_resource path="res://Scripts/LevelBackdrop.gd" type="Script" id=3]
 
 [node name="LevelBackdrop" type="TextureRect"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 texture = ExtResource( 2 )
+script = ExtResource( 3 )
 
 [node name="LevelButton" parent="." instance=ExtResource( 1 )]
 position = Vector2( 123, 330 )

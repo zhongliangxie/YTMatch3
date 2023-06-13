@@ -346,10 +346,7 @@ func touch_difference(grid_1, grid_2):
 func _process(delta):
 	if can_move:
 		touch_input()
-	"""
-	elif state == booster:
-		booster_input()
-	"""
+
 func find_matches(query = false, array = all_pieces):
 	for i in width:
 		for j in height:
@@ -811,14 +808,8 @@ func cam_effect():
 	emit_signal("camera_effect")
 
 func make_booster_active(booster_type):
-	"""
-	if state == move:
-		state = booster
-		current_booster_type = booster_type
-	elif state == booster:
-		state = move
-		current_booster_type = ""
-	"""
+	pass
+
 func booster_input():
 	if Input.is_action_just_pressed("ui_touch"):
 		if current_booster_type == "Color Bomb":
@@ -830,12 +821,6 @@ func booster_input():
 				print("added to counter")
 
 func add_to_counter():
-	"""
-	if is_moves:
-		emit_signal("update_counter", 5)
-	else:
-		emit_signal("update_counter", 10)
-	"""
 	can_move = true
 	emit_signal("change_move_state")
 
@@ -871,14 +856,6 @@ func _on_slime_holder_remove_slime(place):
 		if slime_spaces[i] == place:
 			slime_spaces.remove(i)
 
-func declare_game_over():
-	emit_signal("game_over")
-	can_move = false
-	emit_signal("change_move_state")
-func _on_GoalHolder_game_won():
-	can_move = true
-	emit_signal("change_move_state")
-
 func _on_ShuffleTimer_timeout():
 	shuffle_board()
 
@@ -892,3 +869,11 @@ func _on_bottom_ui_booster(booster_type):
 func _on_GameManager_set_dimensions(new_width, new_height):
 	width = new_width
 	height = new_height
+
+
+func _on_GameManager_game_won():
+	can_move = false
+
+
+func _on_GameManager_game_lost():
+	can_move = false

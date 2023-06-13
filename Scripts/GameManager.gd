@@ -25,16 +25,18 @@ signal set_counter_info
 # Goal Stuff
 onready var goal_holder =$GoalHolder
 var game_won = false
+var game_lost = false
 signal create_goal
 signal game_won
+signal game_lost
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	if !is_moves:
-		$MoveTimer.start()
 	setup()
 
 func setup():
+	if !is_moves:
+		$MoveTimer.start()
 	current_counter = max_counter
 	#Set the score to zero to start
 	current_score = 0
@@ -77,6 +79,16 @@ func goals_met():
 			return false
 	return true
 
+func update_counter():
+	current_counter -= 1
+	if current_counter < 0:
+		current_counter = 0
+		if !game_lost and board_stabel:
+			emit_signal("game_lost")
+			game_lost = true
+			$MoveTimer.one_shot = true
+	emit_signal("set_counter_info", current_counter)
+
 # GameManager Signals
 func _on_grid_update_score(streak_value):
 	current_score += streak_value * points_per_piece
@@ -85,17 +97,11 @@ func _on_grid_update_score(streak_value):
 
 func _on_grid_update_counter():
 	if is_moves:
-		current_counter -= 1
-		if current_counter < 0:
-			current_counter = 0
-		emit_signal("set_counter_info", current_counter)
+		update_counter()
 
 func _on_MoveTimer_timeout():
 	if !is_moves and !game_won:
-		current_counter -= 1
-		if current_counter < 0:
-			current_counter = 0
-		emit_signal("set_counter_info", current_counter)
+		update_counter()
 
 func _on_grid_check_goal(goal_type):
 	check_goals(goal_type)

@@ -28,8 +28,7 @@ script = ExtResource( 13 )
 width = 8
 height = 10
 level = 12
-is_moves = true
-max_counter = 37
+max_counter = 5
 max_score = 1000
 points_per_piece = 15
 
@@ -116,12 +115,14 @@ one_shot = true
 script = ExtResource( 18 )
 
 [connection signal="create_goal" from="GameManager" to="CanvasLayer/top_ui" method="_on_GameManager_create_goal"]
+[connection signal="game_lost" from="GameManager" to="grid" method="_on_GameManager_game_lost"]
+[connection signal="game_lost" from="GameManager" to="Game Over Panel" method="_on_GameManager_game_lost"]
+[connection signal="game_won" from="GameManager" to="grid" method="_on_GameManager_game_won"]
 [connection signal="game_won" from="GameManager" to="Game Win Screen" method="_on_GameManager_game_won"]
 [connection signal="set_counter_info" from="GameManager" to="CanvasLayer/top_ui" method="_on_GameManager_set_counter_info"]
 [connection signal="set_dimensions" from="GameManager" to="grid" method="_on_GameManager_set_dimensions"]
 [connection signal="set_score_info" from="GameManager" to="CanvasLayer/top_ui" method="_on_GameManager_set_score_info"]
 [connection signal="timeout" from="GameManager/MoveTimer" to="GameManager" method="_on_MoveTimer_timeout"]
-[connection signal="notfiy_of_level" from="CanvasLayer/top_ui" to="GameManager/GoalHolder" method="_on_top_ui_notfiy_of_level"]
 [connection signal="booster" from="CanvasLayer/bottom_ui" to="grid" method="_on_bottom_ui_booster"]
 [connection signal="pause_game" from="CanvasLayer/bottom_ui" to="Pause" method="_on_bottom_ui_pause_game"]
 [connection signal="camera_effect" from="grid" to="Camera2D" method="_on_grid_camera_effect"]
