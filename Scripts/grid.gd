@@ -33,6 +33,9 @@ signal damage_slime
 # Preset Board
 export (PoolVector3Array) var preset_spaces
 
+export (PoolStringArray) var possible_pieces
+
+"""
 # The piece array
 var possible_pieces = [
 preload("res://Scenes/yellow_piece.tscn"),
@@ -42,7 +45,7 @@ preload("res://Scenes/orange_piece.tscn"),
 preload("res://Scenes/green_piece.tscn"),
 #preload("res://Scenes/light_piece.tscn")	
 ];
-
+"""
 # hint stuff
 export (PackedScene) var hint_effect
 var hint = null
@@ -174,12 +177,12 @@ func spawn_pieces():
 			if !restricted_fill(Vector2(i, j)) and all_pieces[i][j] == null:
 				#choose a random number and store it
 				var rand = floor(rand_range(0, possible_pieces.size()));
-				var piece = possible_pieces[rand].instance();
+				var piece = load(possible_pieces[rand]).instance();
 				var loops = 0;
 				while(match_at(i, j, piece.color) && loops < 100):
 					rand = floor(rand_range(0, possible_pieces.size()));
 					loops += 1;
-					piece = possible_pieces[rand].instance();
+					piece = load(possible_pieces[rand]).instance();
 				# Instance that piece from the array
 
 				add_child(piece);
@@ -771,14 +774,14 @@ func find_all_matches():
 	for i in width:
 		for j in height:
 			if clone_array[i][j] != null:
-				if switch_and_check(Vector2(i,j), Vector2(1, 0), clone_array) and is_in_grid(Vector2(i + 1, j)):
+				if switch_and_check(Vector2(i,j), Vector2(1, 0), clone_array) and is_in_grid(Vector2(i + 1, j)) and !restricted_move(Vector2(i + 1, j)):
 					#add the piece i,j to the hint_holder
 					if match_color != "":
 						if match_color == clone_array[i][j].color:
 							hint_holder.append(clone_array[i][j])
 						else:
 							hint_holder.append(clone_array[i + 1][j])
-				if switch_and_check(Vector2(i,j), Vector2(0, 1), clone_array) and is_in_grid(Vector2(i, j+1)):
+				if switch_and_check(Vector2(i,j), Vector2(0, 1), clone_array) and is_in_grid(Vector2(i, j+1)) and !restricted_move(Vector2(i, j + 1)):
 					#add the piece i,j to the hint_holder
 					if match_color != "":
 						if match_color == clone_array[i][j].color:
