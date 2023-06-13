@@ -23,9 +23,12 @@ signal set_counter_info
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	if !is_moves:
+		$MoveTimer.start()
 	setup()
 
 func setup():
+	current_counter = max_counter
 	#Set the score to zero to start
 	current_score = 0
 	# Check for an existing high score, and store in memory
@@ -33,8 +36,25 @@ func setup():
 		if GameDataManager.level_info[level].has("high score"):
 			current_high_score = GameDataManager.level_info[level]["high score"]
 	emit_signal("set_score_info", max_score, current_score)
-	emit_signal("set dimenstions", width, height)
+	emit_signal("set_dimensions", width, height)
+	emit_signal("set_counter_info", current_counter)
 
 func _on_grid_update_score(streak_value):
 	current_score += streak_value * points_per_piece
 	emit_signal("set_score_info", max_score, current_score)
+
+
+func _on_grid_update_counter():
+	if is_moves:
+		current_counter -= 1
+		if current_counter < 0:
+			current_counter = 0
+		emit_signal("set_counter_info", current_counter)
+
+func _on_MoveTimer_timeout():
+	if !is_moves:
+		current_counter -= 1
+		if current_counter < 0:
+			current_counter = 0
+		emit_signal("set_counter_info", current_counter)
+		

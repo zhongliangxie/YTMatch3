@@ -77,10 +77,13 @@ var streak = 1
 
 # Counter Variables
 signal update_counter
+"""
 export(int) var current_counter_value = 0
 export(bool) var is_moves
 signal game_over
 signal set_max_counter
+"""
+
 # Goal Check Stuff
 signal check_goal
 
@@ -108,7 +111,7 @@ signal camera_effect
 var current_booster_type
 
 func _ready():
-	emit_signal("set_max_counter", current_counter_value)
+#	emit_signal("set_max_counter", current_counter_value)
 	state = move
 	randomize();
 	move_camera()
@@ -122,10 +125,8 @@ func _ready():
 	spawn_locks()
 	spawn_concrete()
 	spawn_slime()
-	emit_signal("update_counter", current_counter_value)
+#	emit_signal("update_counter", current_counter_value)
 #	emit_signal("setup_max_score", max_score)
-	if !is_moves:
-		$Timer.start()
 
 func move_camera():
 	var new_pos = grid_to_pixel(float(width-1)/2, float(height-1)/2)
@@ -571,12 +572,12 @@ func refill_columns():
 			if all_pieces[i][j] == null && !restricted_fill(Vector2(i, j)):
 				#choose a random number and store it
 				var rand = floor(rand_range(0, possible_pieces.size()));
-				var piece = possible_pieces[rand].instance();
+				var piece = load(possible_pieces[rand]).instance();
 				var loops = 0;
 				while(match_at(i, j, piece.color) && loops < 100):
 					rand = floor(rand_range(0, possible_pieces.size()));
 					loops += 1;
-					piece = possible_pieces[rand].instance();
+					piece = load(possible_pieces[rand]).instance();
 						
 				# Instance that piece from the array
 
@@ -605,6 +606,7 @@ func after_refill():
 	color_bomb_used = false
 	if is_deadlocked():
 		$ShffleTimer.start()
+	"""
 	if is_moves:
 		if state != win:
 			current_counter_value -= 1
@@ -613,6 +615,9 @@ func after_refill():
 				declare_game_over()
 			else:
 				state = move
+	"""
+	emit_signal("update_counter")
+	state = move
 	$HintTimer.start()
 
 func generate_slime():
@@ -828,12 +833,14 @@ func booster_input():
 				print("added to counter")
 
 func add_to_counter():
+	"""
 	if is_moves:
 		emit_signal("update_counter", 5)
 	else:
 		emit_signal("update_counter", 10)
+	"""
 	state = move
-	print(current_counter_value)
+
 
 func make_color_bomb(grid_position):
 	if is_in_grid(grid_position):
@@ -865,14 +872,6 @@ func _on_slime_holder_remove_slime(place):
 	for i in range(slime_spaces.size() - 1, -1, -1):
 		if slime_spaces[i] == place:
 			slime_spaces.remove(i)
-
-func _on_Timer_timeout():
-	current_counter_value -= 1
-	emit_signal("update_counter")
-	if current_counter_value == 0:
-		if state != win:
-			declare_game_over()
-		$Timer.stop()
 
 func declare_game_over():
 	emit_signal("game_over")

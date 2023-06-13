@@ -5,31 +5,18 @@ onready var counter_label = $MarginContainer/HBoxContainer/CounterLabel
 onready var score_bar = $MarginContainer/HBoxContainer/VBoxContainer/TextureProgress
 onready var goal_container = $MarginContainer/HBoxContainer/HBoxContainer
 export (PackedScene) var goal_prefab
-export (int) var current_level
-
-var current_count = 0
-var max_counter = 0
 
 #signal to the Goal holder to know what level we're on
 signal notfiy_of_level
 
 func _ready():
-	emit_signal("notfiy_of_level", current_level)
-
-func _on_grid_update_counter(amount_to_change = -1):
-	current_count += amount_to_change
-	counter_label.text = String(current_count)
-
-func setup_score_bar(max_score):
-	score_bar.max_value = max_score
+#	emit_signal("notfiy_of_level", current_level)
+	pass
 
 func make_goal(new_max, new_texture, new_value):
 	var current = goal_prefab.instance()
 	goal_container.add_child(current)
 	current.set_goal_values(new_max, new_texture, new_value)
-
-func _on_grid_setup_max_score(max_score):
-	setup_score_bar(max_score)
 
 func _on_GoalHolder_create_goal(new_max, new_texture, new_value):
 	make_goal(new_max, new_texture, new_value)
@@ -42,11 +29,10 @@ func _on_ice_holder_break_ice(goal_type):
 	for i in goal_container.get_child_count():
 		goal_container.get_child(i).update_goal_values(goal_type)
 
-func _on_grid_set_max_counter(new_max_counter):
-	max_counter = new_max_counter
-
-func _on_GameManager_set_counter_info():
-	pass # Replace with function body.
+func _on_GameManager_set_counter_info(current_counter):
+	if !counter_label:
+		counter_label = $MarginContainer/HBoxContainer/CounterLabel
+	counter_label.text = String(current_counter)
 
 func _on_GameManager_set_score_info(new_max, new_current):
 	if !score_bar:
